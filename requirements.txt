@@ -1,0 +1,9 @@
+aiogram~=3.0.0b7
+asyncpg==0.28.0
+environs~=9.5.0
+redis==4.6.0
+DateTime~=5.1
+aiomysql~=0.2.0
+requests~=2.31.0
+beautifulsoup4~=4.11.1
+aiohttp~=3.8.4

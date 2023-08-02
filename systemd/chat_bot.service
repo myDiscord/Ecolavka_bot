@@ -1,0 +1,15 @@
+[Unit]
+Description=chat_bot
+After=syslog.target
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/bot/Python-3.10.2/bot
+ExecStart=/usr/local/bin/python3.10 /home/bot/Python-3.10.2/bot/main.py
+RestartSec=10
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

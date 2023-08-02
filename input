@@ -1,0 +1,26 @@
+# bot data
+TOKEN=6050869155:AAH4XPEpr1ttHPt1bDyTKdUVWnxFVEWaj3E
+
+# contact data
+MANAGER_LINK='Zakaz_Mayeri_bot'
+PHONE=+998(99)3082080
+GROUP=-1001963013969
+
+# tokens for payments
+CLICK=398062629:TEST:999999999_F91D8F69C042267444B74CC0B3C747757EB0E065
+PAY_COM=371317599:TEST:1690798156427
+
+# some settings to payment
+START_PARAMETER=CoolBot
+LOGO=https://marketing.uz/brend-goda-2022/uploads/works/covers/515a3165f774f2e6ab2d2c20f9d16cc2.jpg
+
+# company data
+COMPANY_NAME='Mayeri'
+COMPANY_WEBSITE='http://www.mayeri.uz/'
+
+# db settings
+DB_HOST='localhost'
+DB_PORT=5432
+DB_DATABASE='postgres'
+DB_USER='postgres'
+DB_PASSWORD='postgres'
