@@ -18,93 +18,151 @@ async def create_dict_con():
 async def get_brands():
     con, cur = await create_dict_con()
     await cur.execute("""
-    SELECT * 
-    FROM brands
-    WHERE id = 3
-    """)
+        SELECT * 
+        FROM brands
+        WHERE id = 3;
+        """)
     query = await cur.fetchall()
     await con.ensure_closed()
     return query
 
 
-async def get_lines(brand_id):
+async def get_lines(brand_name):
     con, cur = await create_dict_con()
     await cur.execute("""
-    SELECT id, title 
-    FROM brand_lines 
-    WHERE brand_id = %s
-    """, (brand_id,))
+        SELECT title
+        FROM brand_lines
+        WHERE title LIKE %s;
+        """, (f"{brand_name}%",))
     query = await cur.fetchall()
     await con.ensure_closed()
     return query
+
+
+async def get_line_id(brand_name):
+    con, cur = await create_dict_con()
+    await cur.execute("""
+        SELECT id
+        FROM brand_lines
+        WHERE title LIKE %s;
+        """, (f"%{brand_name}%",))
+    query = await cur.fetchone()
+    await con.ensure_closed()
+    if query:
+        return query['id']
+    return None
 
 
 async def get_categories(language, line_name):
+    if line_name == 'УХОДОВАЯ':
+        line_name = line_name.lower()
     con, cur = await create_dict_con()
     if language == 'ru':
-        if line_name == 'УХОДОВАЯ':
-            await cur.execute("""
-            SELECT id, title_ru
-            FROM categories
-            WHERE sd_id = %s
-            """, ("d0_19",))
-        else:
-            await cur.execute("""
-            SELECT id, title_ru 
-            FROM categories
-            WHERE title_ru LIKE %s
-            """, (f"{line_name} %",))
+        await cur.execute("""
+        SELECT id, title_ru 
+        FROM categories
+        WHERE title_ru LIKE %s
+        """, (f"%{line_name}%",))
     elif language == 'uz':
-        if line_name == 'УХОДОВАЯ':
-            await cur.execute("""
-            SELECT id, title_uz
-            FROM categories
-            WHERE sd_id = %s
-            """, ("d0_19",))
-        else:
-            await cur.execute("""
-            SELECT id, title_uz 
-            FROM categories
-            WHERE title_uz LIKE %s
-            """, (f"{line_name} %",))
+        await cur.execute("""
+        SELECT id, title_uz 
+        FROM categories
+        WHERE title_uz LIKE %s
+        """, (f"%{line_name}%",))
     query = await cur.fetchall()
     await con.ensure_closed()
     return query
 
 
-async def get_products(category_id, language):
+async def get_category_id(line_name, line_id):
+    if line_name == 'УХОДОВАЯ':
+        line_name = line_name.lower()
+    con, cur = await create_dict_con()
+    await cur.execute("""
+        SELECT id 
+        FROM categories
+        WHERE title_ru LIKE %s AND brand_line_id=%s
+        """, (f"%{line_name}%", line_id))
+    query = await cur.fetchone()
+    await con.ensure_closed()
+    if query:
+        return query['id']
+    return None
+
+
+async def get_subcategories(language, category_id):
     con, cur = await create_dict_con()
     if language == 'ru':
         await cur.execute("""
-        SELECT id, title_ru, price, img 
-        FROM products 
+        SELECT title_ru 
+        FROM subcategories
         WHERE category_id=%s
-        """, (category_id, ))
+        """, (category_id,))
     elif language == 'uz':
         await cur.execute("""
-        SELECT id, title_uz, price, img 
-        FROM products 
+        SELECT title_uz 
+        FROM subcategories
         WHERE category_id=%s
-        """, (category_id, ))
+        """, (category_id,))
     query = await cur.fetchall()
     await con.ensure_closed()
     return query
 
 
-async def get_product(product_id, language):
+async def get_subcategory_id(subcategory_name, language):
+    con, cur = await create_dict_con()
+    if language == 'ru':
+        await cur.execute("""
+            SELECT id 
+            FROM subcategories
+            WHERE title_ru=%s
+            """, (subcategory_name,))
+    elif language == 'uz':
+        await cur.execute("""
+            SELECT id 
+            FROM subcategories
+            WHERE title_uz=%s
+            """, (subcategory_name,))
+    query = await cur.fetchone()
+    await con.ensure_closed()
+    if query:
+        return query['id']
+    return None
+
+
+async def get_products(subcategory_id, language):
+    con, cur = await create_dict_con()
+    if language == 'ru':
+        await cur.execute("""
+        SELECT title_ru
+        FROM products 
+        WHERE subcategory_id=%s
+        """, (subcategory_id, ))
+    elif language == 'uz':
+        await cur.execute("""
+        SELECT title_uz
+        FROM products 
+        WHERE subcategory_id=%s
+        """, (subcategory_id,))
+    query = await cur.fetchall()
+    await con.ensure_closed()
+    return query
+
+
+async def get_product(product_name, language):
     con, cur = await create_dict_con()
     if language == 'ru':
         await cur.execute("""
         SELECT id, title_ru, price, img 
         FROM products 
-        WHERE id=%s
-        """, (product_id,))
+        WHERE title_ru LIKE %s
+        """, (f"%{product_name}%",))
     elif language == 'uz':
         await cur.execute("""
         SELECT id, title_uz, price, img 
         FROM products 
-        WHERE id=%s
-        """, (product_id,))
+        WHERE title_uz LIKE %s
+        """, (f"%{product_name}%",))
     query = await cur.fetchone()
     await con.ensure_closed()
     return query
@@ -151,10 +209,10 @@ async def get_name(product_id, language):
 async def get_sd_id(product_id):
     con, cur = await create_dict_con()
     await cur.execute("""
-    SELECT sd_id
-    FROM products 
-    WHERE id=%s
-    """, (product_id,))
+        SELECT sd_id
+        FROM products 
+        WHERE id=%s
+        """, (product_id,))
     query = await cur.fetchone()
     await con.ensure_closed()
     return query
@@ -214,23 +272,23 @@ async def add_order(name, phone, city, address, payment_method,
 async def get_history(phone, telegram_id):
     con, cur = await create_dict_con()
     await cur.execute("""
-    SELECT updated_at
-    FROM orders
-    WHERE phone = %s OR telegram_id = %s
-    ORDER BY updated_at DESC;
-    """, (phone, telegram_id))
+        SELECT updated_at
+        FROM orders
+        WHERE phone = %s OR telegram_id = %s
+        ORDER BY updated_at DESC;
+        """, (phone, telegram_id))
     query = await cur.fetchall()
     await con.ensure_closed()
-    return query
+    return query or None
 
 
 async def get_history_order(updated_at):
     con, cur = await create_dict_con()
     await cur.execute("""
-    SELECT products
-    FROM orders
-    WHERE updated_at = %s;
-    """, (updated_at,))
+        SELECT products
+        FROM orders
+        WHERE updated_at = %s;
+        """, (updated_at,))
     query = await cur.fetchone()
     await con.ensure_closed()
     if query is not None and 'products' in query:

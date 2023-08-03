@@ -1,22 +1,26 @@
 from aiogram import Router, Bot, F
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message
 
 from core.database.db_cart import Cart
-from core.database.db_mysql import get_brands, get_lines, get_categories, get_products, get_product
+from core.database.db_mysql import get_brands, get_lines, get_categories, get_products, get_product, get_category_id, \
+    get_line_id, get_subcategories, get_subcategory_id
 from core.database.db_users import Users
-from core.keyboards.ru.catalog import ikb_brands, ikb_lines, ikb_categories, ikb_products, ikb_product, \
-    ikb_product_in_cart
-from core.keyboards.uz.catalog import ikb_brands_uz, ikb_lines_uz, ikb_categories_uz, ikb_products_uz, ikb_product_uz, \
-    ikb_product_in_cart_uz
+from core.keyboards.ru.catalog import rkb_brands, rkb_lines, rkb_categories, rkb_products, rkb_product, \
+    rkb_product_in_cart, rkb_subcategories
+from core.keyboards.uz.catalog import rkb_brands_uz, rkb_lines_uz, rkb_categories_uz, rkb_products_uz, rkb_product_uz, \
+    rkb_product_in_cart_uz, rkb_subcategories_uz
 
-from core.utils.chat_cleaner import del_message, message_list, del_callback
+from core.utils.chat_cleaner import del_message, message_list
+from core.utils.states import UserState
 
 router = Router()
 
 
 @router.message(F.text == "🗂 Mahsulot katalogi")
 @router.message(F.text == "🗂 Каталог продукции")
+@router.message(F.text == "🔙 Назад")
+@router.message(F.text == "🔙 Orqaga")
 async def show_brands(message: Message, bot: Bot, users: Users, state: FSMContext) -> None:
     await state.clear()
 
@@ -31,278 +35,222 @@ async def show_brands(message: Message, bot: Bot, users: Users, state: FSMContex
             text=f"""
             Выберите бренд
             """,
-            reply_markup=ikb_brands(brands)
+            reply_markup=rkb_brands(brands)
         )
     else:
         msg = await message.answer(
             text=f"""
             Brendni tanlang
             """,
-            reply_markup=ikb_brands_uz(brands)
+            reply_markup=rkb_brands_uz(brands)
         )
     message_list.append(msg.message_id)
 
-
-@router.callback_query(F.data == "Mahsulot katalogi")
-@router.callback_query(F.data == "Каталог продукции")
-async def show_brands(callback: CallbackQuery, users: Users) -> None:
-    brands = await get_brands()
-
-    language = await users.get_language(callback.from_user.id)
-
-    if language == 'ru':
-        msg = await callback.message.edit_text(
-            text=f"""
-            Выберите бренд
-            """,
-            reply_markup=ikb_brands(brands)
-        )
-    else:
-        msg = await callback.message.edit_text(
-            text=f"""
-            Brendni tanlang
-            """,
-            reply_markup=ikb_brands_uz(brands)
-        )
-    message_list.append(msg.message_id)
+    await state.set_state(UserState.brand)
 
 
-@router.callback_query(F.data.startswith('ru_brand_'))
-async def show_lines(callback: CallbackQuery, users: Users, state: FSMContext) -> None:
-    brand_id = int(callback.data.split('_')[-1])
+@router.message(F.text, UserState.brand)
+@router.message(F.text == '🔙 Назад', UserState.lines)
+@router.message(F.text == '🔙 Orqaga', UserState.lines)
+async def show_lines(message: Message, bot: Bot, users: Users, state: FSMContext) -> None:
+    brand_name = message.text
+    await state.update_data(brand_name=brand_name)
 
-    language = await users.get_language(callback.from_user.id)
+    language = await users.get_language(message.from_user.id)
+    brand_lines = await get_lines(brand_name)
 
-    await state.update_data(brand_id=brand_id)
-
-    brand_lines = await get_lines(brand_id)
+    await del_message(bot, message, message_list)
 
     if language == 'ru':
-        msg = await callback.message.edit_text(
+        msg = await message.answer(
             text=f"""
             Выберите линейку продукции:
             """,
-            reply_markup=ikb_lines(brand_lines)
+            reply_markup=rkb_lines(brand_lines)
         )
     else:
-        msg = await callback.message.edit_text(
+        msg = await message.answer(
             text=f"""
             Mahsulot qatorini tanlang:
             """,
-            reply_markup=ikb_lines_uz(brand_lines)
+            reply_markup=rkb_lines_uz(brand_lines)
         )
     message_list.append(msg.message_id)
 
+    await state.set_state(UserState.lines)
 
-@router.callback_query(F.data.startswith('ru_brand-lines_'))
-async def show_categories(callback: CallbackQuery, users: Users, state: FSMContext) -> None:
-    line_id = callback.data.split('_')[-1]
-    line_name = callback.data.split('_')[-2].split(' ')[-1].upper()
 
-    data = await state.get_data()
-    brand_id = data.get('brand_id')
+@router.message(F.text, UserState.lines)
+@router.message(F.text == '🔙 Назад', UserState.category)
+@router.message(F.text == '🔙 Orqaga', UserState.category)
+async def show_categories(message: Message, bot: Bot, users: Users, state: FSMContext) -> None:
+    line_name = message.text.upper()
+    line_id = await get_line_id(line_name)
+    await state.update_data(line_name=line_name, line_id=line_id)
 
-    language = await users.get_language(callback.from_user.id)
-
-    await state.update_data(line_name=line_name, line_id=line_id, language=language)
-
+    language = await users.get_language(message.from_user.id)
     categories = await get_categories(language, line_name)
 
+    await del_message(bot, message, message_list)
+
     if language == 'ru':
-        msg = await callback.message.edit_text(
+        msg = await message.answer(
             text=f"""
             Выберите категорию продукции:
             """,
-            reply_markup=ikb_categories(categories, language, brand_id)
+            reply_markup=rkb_categories(categories, language)
         )
     else:
-        msg = await callback.message.edit_text(
+        msg = await message.answer(
             text=f"""
             Mahsulot toifasini tanlang:
             """,
-            reply_markup=ikb_categories_uz(categories, language, brand_id)
+            reply_markup=rkb_categories_uz(categories, language)
         )
     message_list.append(msg.message_id)
 
+    await state.set_state(UserState.category)
 
-@router.callback_query(F.data.startswith('category_'))
-async def show_products(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
-    category_id = callback.data.split('_')[-1]
 
-    await state.update_data(category_id=category_id)
+@router.message(F.text, UserState.category)
+@router.message(F.text == '🔙 Назад', UserState.product)
+@router.message(F.text == '🔙 Orqaga', UserState.product)
+async def show_subcategory(message: Message, bot: Bot, users: Users, state: FSMContext) -> None:
+    category_name = message.text
     data = await state.get_data()
-    line_name = data.get('line_name')
     line_id = data.get('line_id')
-    language = data.get('language')
+    category_id = await get_category_id(category_name, line_id)
+    await state.update_data(category_name=category_name, category_id=category_id)
 
-    products = await get_products(category_id, language)
+    language = await users.get_language(message.from_user.id)
+    subcategories = await get_subcategories(language, category_id)
 
-    await del_callback(bot, callback, message_list)
+    await del_message(bot, message, message_list)
 
     if language == 'ru':
-        msg = await callback.message.answer(
+        msg = await message.answer(
+            text=f"""
+            Выберите категорию:
+            """,
+            reply_markup=rkb_subcategories(subcategories, language)
+        )
+    else:
+        msg = await message.answer(
+            text=f"""
+            Kategoriyani tanlang:
+            """,
+            reply_markup=rkb_subcategories_uz(subcategories, language)
+        )
+    message_list.append(msg.message_id)
+
+    await state.set_state(UserState.products)
+
+
+@router.message(F.text, UserState.products)
+@router.message(F.text == '🔙 Назад', UserState.product)
+@router.message(F.text == '🔙 Orqaga', UserState.product)
+async def show_products(message: Message, bot: Bot, users: Users, state: FSMContext) -> None:
+    subcategory_name = message.text
+    language = await users.get_language(message.from_user.id)
+    subcategory_id = (await get_subcategory_id(subcategory_name, language))
+    await state.update_data(subcategory_name=subcategory_name, subcategory_id=subcategory_id)
+
+    products = await get_products(subcategory_id, language)
+
+    await del_message(bot, message, message_list)
+
+    if language == 'ru':
+        msg = await message.answer(
             text=f"""
             Выберите продукт:
             """,
-            reply_markup=ikb_products(products, language, line_id, line_name)
+            reply_markup=rkb_products(products, language)
         )
     else:
-        msg = await callback.message.answer(
+        msg = await message.answer(
             text=f"""
             Mahsulotni tanlang:
             """,
-            reply_markup=ikb_products_uz(products, language, line_id, line_name)
+            reply_markup=rkb_products_uz(products, language)
         )
     message_list.append(msg.message_id)
 
+    await state.set_state(UserState.product)
 
-@router.callback_query(F.data.startswith('product_'))
-async def show_product(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
-    product_id = int(callback.data.split('_')[-1])
-    number = int(callback.data.split('_')[-2])
-    await state.update_data(product_id=product_id)
-    data = await state.get_data()
-    category_id = data.get('category_id')
-    language = data.get('language')
 
-    await del_callback(bot, callback, message_list)
+@router.message(F.text, UserState.product)
+@router.message(F.text == '🔙 Назад', UserState.cart)
+@router.message(F.text == '🔙 Orqaga', UserState.cart)
+async def show_product(message: Message, bot: Bot, users: Users, state: FSMContext) -> None:
+    product_name = message.text
+    await state.update_data(product_name=product_name)
 
-    product = await get_product(product_id, language)
+    language = await users.get_language(message.from_user.id)
 
-    if number == 1:
-        text = ''
-        price = int(product['price'])
-    else:
-        if language == 'ru':
-            text = f'- {number} шт'
-        else:
-            text = f'- {number} dona'
-        price = int(product['price']) * number
+    await del_message(bot, message, message_list)
+
+    product = await get_product(product_name, language)
+
+    price = int(product['price'])
 
     product_title = product[f"title_{language}"].split(",")[:-1]
     title = ", ".join(product_title)
     photo = product['img'].split('.')[0]
+    await state.update_data(title=title, photo=photo, price=price, product_id=product['id'])
 
     if language == 'ru':
         msg = await bot.send_photo(
-            chat_id=callback.from_user.id,
+            chat_id=message.from_user.id,
             photo=f"https://ecolavka.uz/public/media/{photo}.webp",
             caption=f"""
-            {title}\n\nЦена - {price} {text}
+            {title}\n\nЦена - {price} сум
             """,
-            reply_markup=ikb_product(product_id, number, category_id)
+            reply_markup=rkb_product()
         )
     else:
         msg = await bot.send_photo(
-            chat_id=callback.from_user.id,
+            chat_id=message.from_user.id,
             photo=f"https://ecolavka.uz/public/media/{photo}.webp",
             caption=f"""
-            {title}\n\nNarxi - {price} {text}
+            {title}\n\nNarxi - {price} soʻm
             """,
-            reply_markup=ikb_product_uz(product_id, number, category_id)
+            reply_markup=rkb_product_uz()
         )
     message_list.append(msg.message_id)
 
+    await state.set_state(UserState.cart)
 
-@router.callback_query(F.data.startswith('product_'))
-async def show_product(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
-    product_id = int(callback.data.split('_')[-1])
-    number = int(callback.data.split('_')[-2])
-    await state.update_data(product_id=product_id)
+
+@router.message(F.text == '✅ Добавить в корзину', UserState.cart)
+@router.message(F.text == "✅ Savatga qo'shish", UserState.cart)
+async def add_product(message: Message, bot: Bot, cart: Cart, state: FSMContext) -> None:
     data = await state.get_data()
-    category_id = data.get('category_id')
+    product_id = data.get('product_id')
     language = data.get('language')
+    title = data.get('title')
+    photo = data.get('photo')
+    price = data.get('price')
 
-    await del_callback(bot, callback, message_list)
+    await del_message(bot, message, message_list)
 
-    product = await get_product(product_id, language)
-
-    if number == 1:
-        text = ''
-        price = int(product['price'])
-    else:
-        if language == 'ru':
-            text = f'- {number} шт'
-        else:
-            text = f'- {number} dona'
-        price = int(product['price']) * number
-
-    product_title = product[f"title_{language}"].split(",")[:-1]
-    title = ", ".join(product_title)
-    photo = product['img'].split('.')[0]
+    await cart.add_to_cart(message.from_user.id, int(product_id), 1, int(price))
 
     if language == 'ru':
         msg = await bot.send_photo(
-            chat_id=callback.from_user.id,
+            chat_id=message.from_user.id,
             photo=f"https://ecolavka.uz/public/media/{photo}.webp",
             caption=f"""
-            {title}\n\nЦена - {price} {text}
+            {title}\n\nЦена - {price} сум
             """,
-            reply_markup=ikb_product(product_id, number, category_id)
+            reply_markup=rkb_product_in_cart()
         )
     else:
         msg = await bot.send_photo(
-            chat_id=callback.from_user.id,
+            chat_id=message.from_user.id,
             photo=f"https://ecolavka.uz/public/media/{photo}.webp",
             caption=f"""
-            {title}\n\nNarxi - {price} {text}
+            {title}\n\nNarxi - {price} soʻm
             """,
-            reply_markup=ikb_product_uz(product_id, number, category_id)
-        )
-    message_list.append(msg.message_id)
-
-
-@router.callback_query(F.data.startswith('cart-add_'))
-async def add_product(callback: CallbackQuery, bot: Bot, cart: Cart, state: FSMContext) -> None:
-    product_id = int(callback.data.split('_')[-1])
-    number = int(callback.data.split('_')[-2])
-    data = await state.get_data()
-    category_id = data.get('category_id')
-    language = data.get('language')
-
-    await del_callback(bot, callback, message_list)
-
-    if language == 'ru':
-        await callback.answer('Товар добавлен в корзину')
-    else:
-        await callback.answer("Mahsulot savatga qo'shildi")
-
-    await state.update_data(product_id=product_id)
-
-    product = await get_product(product_id, language)
-
-    await cart.add_to_cart(callback.from_user.id, product_id, number, int(product['price']))
-
-    if number == 1:
-        text = ''
-        price = int(product['price'])
-    else:
-        if language == 'ru':
-            text = f'- {number} шт'
-        else:
-            text = f'- {number} dona'
-        price = int(product['price']) * number
-
-    product_title = product[f"title_{language}"].split(",")[:-1]
-    title = ", ".join(product_title)
-    photo = product['img'].split('.')[0]
-
-    if language == 'ru':
-        msg = await bot.send_photo(
-            chat_id=callback.from_user.id,
-            photo=f"https://ecolavka.uz/public/media/{photo}.webp",
-            caption=f"""
-            {title}\n\nЦена - {price} {text}
-            """,
-            reply_markup=ikb_product_in_cart(category_id)
-        )
-    else:
-        msg = await bot.send_photo(
-            chat_id=callback.from_user.id,
-            photo=f"https://ecolavka.uz/public/media/{photo}.webp",
-            caption=f"""
-            {title}\n\nNarxi - {price} {text}
-            """,
-            reply_markup=ikb_product_in_cart_uz(category_id)
+            reply_markup=rkb_product_in_cart_uz()
         )
     message_list.append(msg.message_id)

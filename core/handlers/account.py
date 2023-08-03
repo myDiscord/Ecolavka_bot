@@ -2,15 +2,16 @@ from bs4 import BeautifulSoup
 
 from aiogram import Router, Bot, F
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message
 
 from core.database.db_mysql import get_history, get_name, get_history_order
 from core.database.db_users import Users
-from core.keyboards.ru.account import ikb_account, ikb_account_2
+from core.keyboards.ru.account import rkb_account, rkb_account_2
 from core.keyboards.ru.reply import rkb_menu_ru
-from core.keyboards.uz.account import ikb_account_uz, ikb_account_2_uz
+from core.keyboards.uz.account import rkb_account_uz, rkb_account_2_uz
 from core.keyboards.uz.reply import rkb_menu_uz
-from core.utils.chat_cleaner import del_message, message_list, del_callback
+from core.utils.chat_cleaner import del_message, message_list
+from core.utils.states import UserState
 
 router = Router()
 
@@ -48,6 +49,8 @@ async def create_product_text(products, language):
 
 @router.message(F.text == "💼 Shaxsiy hisob")
 @router.message(F.text == "💼 Личный кабинет")
+@router.message(F.text == "🔙 Назад", UserState.account)
+@router.message(F.text == "🔙 Orqaga", UserState.account)
 async def show_account(message: Message, bot: Bot, users: Users, state: FSMContext) -> None:
     await state.clear()
 
@@ -80,68 +83,28 @@ async def show_account(message: Message, bot: Bot, users: Users, state: FSMConte
                 text="""
                 Ваши заказы:
                 """,
-                reply_markup=ikb_account(data)
+                reply_markup=rkb_account(data)
             )
         else:
             msg = await message.answer(
                 text="""
                 Sizning buyurtmalaringiz:
                 """,
-                reply_markup=ikb_account_uz(data)
+                reply_markup=rkb_account_uz(data)
             )
         message_list.append(msg.message_id)
 
-
-@router.callback_query(F.data == "account")
-async def show_account(callback: CallbackQuery, bot: Bot, users: Users) -> None:
-    language = await users.get_language(callback.from_user.id)
-    phone = await users.get_phone(callback.from_user.id)
-
-    await del_callback(bot, callback, message_list)
-
-    data = await get_history(phone, callback.from_user.id)
-
-    if data is None:
-        if language == 'ru':
-            msg = await callback.message.answer(
-                text="""
-                    Вы еще не совершили ни одного заказа.
-                    """,
-                reply_markup=rkb_menu_ru
-            )
-        else:
-            msg = await callback.message.answer(
-                text="""
-                    Siz hali hech qanday buyurtma bermadingiz.
-                    """,
-                reply_markup=rkb_menu_uz
-            )
-        message_list.append(msg.message_id)
-
-    else:
-        if language == 'ru':
-            msg = await callback.message.answer(
-                text="""
-                    Ваши заказы:
-                    """,
-                reply_markup=ikb_account(data)
-            )
-        else:
-            msg = await callback.message.answer(
-                text="""
-                    Sizning buyurtmalaringiz:
-                    """,
-                reply_markup=ikb_account_uz(data)
-            )
-        message_list.append(msg.message_id)
+    await state.set_state(UserState.account)
 
 
-@router.callback_query(F.data.startswith('order_'))
-async def order(callback: CallbackQuery, users: Users) -> None:
-    updated_at = callback.data.split('_')[-1]
+@router.message(F.text, UserState.account)
+async def order(message: Message, bot: Bot, users: Users) -> None:
+    updated_at = message.text
+
+    await del_message(bot, message, message_list)
 
     products_list = await get_history_order(updated_at)
-    language = await users.get_language(callback.from_user.id)
+    language = await users.get_language(message.from_user.id)
 
     for item in products_list:
         product = str(item['id'])
@@ -157,17 +120,17 @@ async def order(callback: CallbackQuery, users: Users) -> None:
          products_list])
 
     if language == 'ru':
-        msg = await callback.message.edit_text(
+        msg = await message.answer(
             text=f"""
             {new_products_str}
             """,
-            reply_markup=ikb_account_2()
+            reply_markup=rkb_account_2()
         )
     else:
-        msg = await callback.message.edit_text(
+        msg = await message.answer(
             text=f"""
             {new_products_str}
             """,
-            reply_markup=ikb_account_2_uz()
+            reply_markup=rkb_account_2_uz()
         )
     message_list.append(msg.message_id)

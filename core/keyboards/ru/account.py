@@ -1,36 +1,37 @@
-from aiogram.types import InlineKeyboardMarkup
-from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.types import ReplyKeyboardMarkup
+from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 
-def ikb_account(data) -> InlineKeyboardMarkup:
-    builder = InlineKeyboardBuilder()
-
-    data.sort(key=lambda x: x.get('updated_at'), reverse=True)
+def rkb_account(data) -> ReplyKeyboardMarkup:
+    builder = ReplyKeyboardBuilder()
 
     if isinstance(data, list):
+
+        data.sort(key=lambda x: x.get('updated_at'), reverse=True)
+
+        builder.button(text='🚪Главное меню')
+
         for index, entry in enumerate(data):
             updated_at = entry.get('updated_at')
             if updated_at:
-                builder.button(text=f'{updated_at}', callback_data=f'order_{updated_at}')
-
-        builder.button(text='🚪Главное меню', callback_data='start')
+                builder.button(text=f'{updated_at}')
 
         builder.adjust(*([1] * len(data)), 1)
 
     else:
-        builder.button(text=f'{data}', callback_data=f'order_{data}')
+        builder.button(text=f'{data}')
 
-        builder.button(text='🚪Главное меню', callback_data='start')
+        builder.button(text='🚪Главное меню')
 
         builder.adjust(1, 1)
-    return builder.as_markup()
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
 
 
-def ikb_account_2() -> InlineKeyboardMarkup:
-    builder = InlineKeyboardBuilder()
+def rkb_account_2() -> ReplyKeyboardMarkup:
+    builder = ReplyKeyboardBuilder()
 
-    builder.button(text='🔙 Назад', callback_data=f'account')
-    builder.button(text='🚪Главное меню', callback_data='start')
+    builder.button(text='🔙 Назад')
+    builder.button(text='🚪Главное меню')
 
     builder.adjust(2)
-    return builder.as_markup()
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)

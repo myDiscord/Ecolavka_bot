@@ -3,8 +3,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from core.database.db_users import Users
-from core.keyboards.ru.conection import ikb_connection
-from core.keyboards.uz.conection import ikb_connection_uz
+from core.keyboards.ru.conection import rkb_connection
+from core.keyboards.uz.conection import rkb_connection_uz
 from core.settings import settings
 from core.utils.chat_cleaner import del_message, message_list
 
@@ -24,16 +24,18 @@ async def show_connection(message: Message, bot: Bot, users: Users, state: FSMCo
         msg = await message.answer(
             text=f"""
             ☎️ Контактный телефон: <code>{settings.contacts.phone}</code>
+📱<a href="t.me/{settings.contacts.manager}">Связь с менеджером</a>
             """,
             parse_mode='HTML',
-            reply_markup=ikb_connection()
+            reply_markup=rkb_connection()
         )
     else:
         msg = await message.answer(
             text=f"""
             ☎️ Aloqa telefon raqami: <code>{settings.contacts.phone}</code>
+📱<a href="t.me/{settings.contacts.manager}">Chat menejeri</a>
             """,
             parse_mode='HTML',
-            reply_markup=ikb_connection_uz()
+            reply_markup=rkb_connection_uz()
         )
     message_list.append(msg.message_id)

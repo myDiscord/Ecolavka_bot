@@ -1,14 +1,11 @@
-from aiogram.types import InlineKeyboardMarkup
-from aiogram.utils.keyboard import InlineKeyboardBuilder
-
-from core.settings import settings
+from aiogram.types import ReplyKeyboardMarkup
+from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 
-def ikb_connection() -> InlineKeyboardMarkup:
-    builder = InlineKeyboardBuilder()
+def rkb_connection() -> ReplyKeyboardMarkup:
+    builder = ReplyKeyboardBuilder()
 
-    builder.button(text='Чат с менеджером', url=f't.me/{settings.contacts.manager}')
-    builder.button(text='🚪Главное меню', callback_data='start')
+    builder.button(text='🚪Главное меню')
 
-    builder.adjust(1, 1, 1)
-    return builder.as_markup()
+    builder.adjust(1)
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
