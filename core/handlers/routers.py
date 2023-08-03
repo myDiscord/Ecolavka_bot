@@ -8,8 +8,7 @@ from core.handlers.delivery import router as delivery
 from core.handlers.news import router as news
 from core.handlers.catalog import router as catalog
 from core.handlers.cart import router as cart
-from core.handlers.pay_ru import router as pay_ru
-from core.handlers.pay_uz import router as pay_uz
+from core.handlers.pay import router as pay
 
 
 user_router = Router()
@@ -22,6 +21,5 @@ user_router.include_routers(
     news,
     catalog,
     cart,
-    pay_ru,
-    pay_uz
+    pay
 )

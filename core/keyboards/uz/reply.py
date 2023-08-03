@@ -44,39 +44,3 @@ rkb_manager_uz = ReplyKeyboardMarkup(keyboard=[
         )
     ]
 ], resize_keyboard=True, one_time_keyboard=True, selective=True)
-
-
-rkb_phone_uz = ReplyKeyboardMarkup(keyboard=[
-    [
-        KeyboardButton(
-            text="📲 Telefon raqamini ulashing",
-            request_contact=True
-        )
-    ],
-    [
-        KeyboardButton(
-            text="🔙 Orqaga"
-        ),
-        KeyboardButton(
-            text="🚪Asosiy menyu"
-        )
-    ]
-], resize_keyboard=True, one_time_keyboard=True, selective=True)
-
-
-rkb_geo_uz = ReplyKeyboardMarkup(keyboard=[
-    [
-        KeyboardButton(
-            text="🗺 Joylashuvingizni yuboring",
-            request_location=True
-        )
-    ],
-    [
-        KeyboardButton(
-            text="🔙 Orqaga"
-        ),
-        KeyboardButton(
-            text="🚪Asosiy menyu"
-        )
-    ]
-], resize_keyboard=True, one_time_keyboard=True, selective=True)

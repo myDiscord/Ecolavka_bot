@@ -1,26 +1,62 @@
-from aiogram.types import InlineKeyboardMarkup
-from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 
-def ikb_name() -> InlineKeyboardMarkup:
-    builder = InlineKeyboardBuilder()
+rkb_phone = ReplyKeyboardMarkup(keyboard=[
+    [
+        KeyboardButton(
+            text="📲 Поделиться номером телефона",
+            request_contact=True
+        )
+    ],
+    [
+        KeyboardButton(
+            text="🔙 Назад"
+        ),
+        KeyboardButton(
+            text="🚪Главное меню"
+        )
+    ]
+], resize_keyboard=True, one_time_keyboard=True, selective=True)
 
-    builder.button(text='🔙 Назад', callback_data=f'cart_ru')
-    builder.button(text='🚪Главное меню', callback_data='start')
+
+rkb_geo = ReplyKeyboardMarkup(keyboard=[
+    [
+        KeyboardButton(
+            text="🗺 Отправить свою геопозицию",
+            request_location=True
+        )
+    ],
+    [
+        KeyboardButton(
+            text="🔙 Назад"
+        ),
+        KeyboardButton(
+            text="🚪Главное меню"
+        )
+    ]
+], resize_keyboard=True, one_time_keyboard=True, selective=True)
+
+
+def rkb_name() -> ReplyKeyboardMarkup:
+    builder = ReplyKeyboardBuilder()
+
+    builder.button(text='🔙 Назад')
+    builder.button(text='🚪Главное меню')
 
     builder.adjust(2)
-    return builder.as_markup()
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
 
 
-def ikb_pay() -> InlineKeyboardMarkup:
-    builder = InlineKeyboardBuilder()
+def rkb_pay() -> ReplyKeyboardMarkup:
+    builder = ReplyKeyboardBuilder()
 
-    builder.button(text='Click', callback_data='CLICK')
-    builder.button(text='Paycom', callback_data='PAYCOM')
-    builder.button(text='Наличными курьеру', callback_data='CASH')
+    builder.button(text='Click')
+    builder.button(text='Paycom')
+    builder.button(text='Наличными курьеру')
 
-    builder.button(text='🔙 Назад', callback_data=f'cart_ru')
-    builder.button(text='🚪Главное меню', callback_data='start')
+    builder.button(text='🔙 Назад')
+    builder.button(text='🚪Главное меню')
 
     builder.adjust(2, 1, 2)
-    return builder.as_markup()
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)

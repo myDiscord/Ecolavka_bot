@@ -168,16 +168,9 @@ async def get_product(product_name, language):
     return query
 
 
-async def get_price(product_id, language):
+async def get_price(product_id):
     con, cur = await create_dict_con()
-    if language == 'ru':
-        await cur.execute("""
-        SELECT price
-        FROM products 
-        WHERE id=%s
-        """, (product_id,))
-    elif language == 'uz':
-        await cur.execute("""
+    await cur.execute("""
         SELECT price
         FROM products 
         WHERE id=%s

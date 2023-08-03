@@ -1,26 +1,62 @@
-from aiogram.types import InlineKeyboardMarkup
-from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 
-def ikb_name_uz() -> InlineKeyboardMarkup:
-    builder = InlineKeyboardBuilder()
+rkb_phone_uz = ReplyKeyboardMarkup(keyboard=[
+    [
+        KeyboardButton(
+            text="📲 Telefon raqamini ulashing",
+            request_contact=True
+        )
+    ],
+    [
+        KeyboardButton(
+            text="🔙 Orqaga"
+        ),
+        KeyboardButton(
+            text="🚪Asosiy menyu"
+        )
+    ]
+], resize_keyboard=True, one_time_keyboard=True, selective=True)
 
-    builder.button(text='🔙 Orqaga', callback_data=f'cart_ru')
-    builder.button(text='🚪Asosiy menyu', callback_data='start')
+
+rkb_geo_uz = ReplyKeyboardMarkup(keyboard=[
+    [
+        KeyboardButton(
+            text="🗺 Joylashuvingizni yuboring",
+            request_location=True
+        )
+    ],
+    [
+        KeyboardButton(
+            text="🔙 Orqaga"
+        ),
+        KeyboardButton(
+            text="🚪Asosiy menyu"
+        )
+    ]
+], resize_keyboard=True, one_time_keyboard=True, selective=True)
+
+
+def rkb_name_uz() -> ReplyKeyboardMarkup:
+    builder = ReplyKeyboardBuilder()
+
+    builder.button(text='🔙 Orqaga')
+    builder.button(text='🚪Asosiy menyu')
 
     builder.adjust(2)
-    return builder.as_markup()
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
 
 
-def ikb_pay_uz() -> InlineKeyboardMarkup:
-    builder = InlineKeyboardBuilder()
+def rkb_pay_uz() -> ReplyKeyboardMarkup:
+    builder = ReplyKeyboardBuilder()
 
-    builder.button(text='Click', callback_data='CLICK_UZ')
-    builder.button(text='Paycom', callback_data='PAYCOM_UZ')
-    builder.button(text='Kuryerga naqd pul', callback_data='CASH_UZ')
+    builder.button(text='Click')
+    builder.button(text='Paycom')
+    builder.button(text='Kuryerga naqd pul')
 
-    builder.button(text='🔙 Orqaga', callback_data=f'cart_ru')
-    builder.button(text='🚪Asosiy meny', callback_data='start')
+    builder.button(text='🔙 Orqaga')
+    builder.button(text='🚪Asosiy meny')
 
     builder.adjust(2, 1, 2)
-    return builder.as_markup()
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)

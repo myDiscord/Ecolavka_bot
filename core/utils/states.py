@@ -13,10 +13,8 @@ class UserState(StatesGroup):
     product = State()
     cart = State()
 
-    name_ru = State()
-    phone_ru = State()
-    geo_ru = State()
+    in_cart = State()
 
-    name_uz = State()
-    phone_uz = State()
-    geo_uz = State()
+    name = State()
+    phone = State()
+    geo = State()

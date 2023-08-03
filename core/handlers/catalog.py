@@ -19,8 +19,8 @@ router = Router()
 
 @router.message(F.text == "🗂 Mahsulot katalogi")
 @router.message(F.text == "🗂 Каталог продукции")
-@router.message(F.text == "🔙 Назад")
-@router.message(F.text == "🔙 Orqaga")
+@router.message(F.text == "🔙 Назад", UserState.brand)
+@router.message(F.text == "🔙 Orqaga", UserState.brand)
 async def show_brands(message: Message, bot: Bot, users: Users, state: FSMContext) -> None:
     await state.clear()
 
@@ -226,6 +226,7 @@ async def show_product(message: Message, bot: Bot, users: Users, state: FSMConte
 async def add_product(message: Message, bot: Bot, cart: Cart, state: FSMContext) -> None:
     data = await state.get_data()
     product_id = data.get('product_id')
+    product_name = data.get('product_name')
     language = data.get('language')
     title = data.get('title')
     photo = data.get('photo')
@@ -233,7 +234,7 @@ async def add_product(message: Message, bot: Bot, cart: Cart, state: FSMContext)
 
     await del_message(bot, message, message_list)
 
-    await cart.add_to_cart(message.from_user.id, int(product_id), 1, int(price))
+    await cart.add_to_cart(message.from_user.id, int(product_id), product_name, 1, int(price))
 
     if language == 'ru':
         msg = await bot.send_photo(
