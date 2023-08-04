@@ -65,47 +65,6 @@ async def show_cart(message: Message, bot: Bot, users: Users, cart: Cart, state:
     await state.set_state(UserState.in_cart)
 
 
-@router.message(F.text, UserState.in_cart)
-async def show_product(message: Message, bot: Bot, users: Users, cart: Cart, state: FSMContext) -> None:
-    product_name = message.text
-    await state.update_data(product_name=product_name)
-
-    language = await users.get_language(message.from_user.id)
-    product_id, number = await cart.get_id_number(message.from_user.id, product_name)
-    price = await get_price(product_id)
-
-    if number == 1:
-        text = ''
-    else:
-        if language == 'ru':
-            text = f'- {number} шт'
-        else:
-            text = f'- {number} dona'
-        price = price * number
-
-    await del_message(bot, message, message_list)
-
-    if language == 'ru':
-        msg = await message.answer(
-            text=f"""
-                {product_name}
-    
-Цена - {price} {text}
-            """,
-            reply_markup=rkb_cart_product(number)
-        )
-    else:
-        msg = await message.answer(
-            text=f"""
-            {product_name}
-
-Narxi - {price} {text}
-            """,
-            reply_markup=rkb_cart_product_uz(number)
-        )
-    message_list.append(msg.message_id)
-
-
 @router.message(F.text == '➕️больше', UserState.in_cart)
 @router.message(F.text == "➕ko'proq", UserState.in_cart)
 @router.message(F.text == '➖️меньше', UserState.in_cart)
@@ -124,6 +83,7 @@ async def show_product(message: Message, bot: Bot, users: Users, cart: Cart, sta
 
     await cart.update_number(message.from_user.id, product_id, number)
     price = await get_price(product_id)
+    price = int(price['price'])
 
     if number == 1:
         text = ''
@@ -132,7 +92,7 @@ async def show_product(message: Message, bot: Bot, users: Users, cart: Cart, sta
             text = f'- {number} шт'
         else:
             text = f'- {number} dona'
-        price = price * number
+        price *= number
 
     await del_message(bot, message, message_list)
 
@@ -201,3 +161,45 @@ async def add_product(message: Message, users: Users, cart: Cart, state: FSMCont
                 reply_markup=rkb_menu_uz
             )
         message_list.append(msg.message_id)
+
+
+@router.message(F.text, UserState.in_cart)
+async def show_product(message: Message, bot: Bot, users: Users, cart: Cart, state: FSMContext) -> None:
+    product_name = message.text
+    await state.update_data(product_name=product_name)
+
+    language = await users.get_language(message.from_user.id)
+    product_id, number = await cart.get_id_number(message.from_user.id, product_name)
+    price = await get_price(product_id)
+    price = int(price['price'])
+
+    if number == 1:
+        text = ''
+    else:
+        if language == 'ru':
+            text = f'- {number} шт'
+        else:
+            text = f'- {number} dona'
+        price *= number
+
+    await del_message(bot, message, message_list)
+
+    if language == 'ru':
+        msg = await message.answer(
+            text=f"""
+                {product_name}
+
+Цена - {price} {text}
+            """,
+            reply_markup=rkb_cart_product(number)
+        )
+    else:
+        msg = await message.answer(
+            text=f"""
+            {product_name}
+
+Narxi - {price} {text}
+            """,
+            reply_markup=rkb_cart_product_uz(number)
+        )
+    message_list.append(msg.message_id)

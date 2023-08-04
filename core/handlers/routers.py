@@ -20,6 +20,6 @@ user_router.include_routers(
     delivery,
     news,
     catalog,
-    cart,
-    pay
+    pay,
+    cart
 )

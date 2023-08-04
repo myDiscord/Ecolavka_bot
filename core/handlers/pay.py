@@ -2,11 +2,12 @@ import json
 
 from aiogram import Router, Bot, F
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery, PreCheckoutQuery, LabeledPrice
+from aiogram.types import Message, PreCheckoutQuery, LabeledPrice
 
 from core.database.db_cart import Cart
 from core.database.db_mysql import get_price, add_order, get_sd_id
 from core.database.db_users import Users
+from core.handlers.cart import show_cart
 from core.keyboards.ru.pay import rkb_pay, rkb_name, rkb_phone, rkb_geo
 from core.keyboards.ru.reply import rkb_menu_ru
 from core.keyboards.uz.pay import rkb_pay_uz, rkb_name_uz, rkb_phone_uz, rkb_geo_uz
@@ -38,12 +39,19 @@ async def to_crm(callback_user_id, cart: Cart):
     return products_list
 
 
-@router.message(F.text == '💳 Заказать')
-@router.message(F.text == '💳 Buyurtma')
 @router.message(F.text == "🔙 Orqaga", UserState.name)
 @router.message(F.text == "🔙 Назад", UserState.name)
+async def back_to_cart(message: Message, bot: Bot, users: Users, cart: Cart, state: FSMContext) -> None:
+    await state.clear()
+    await show_cart(message, bot, users, cart, state)
+
+
+@router.message(F.text == '💳 Заказать')
+@router.message(F.text == '💳 Buyurtma')
+@router.message(F.text == "🔙 Orqaga", UserState.phone)
+@router.message(F.text == "🔙 Назад", UserState.phone)
 async def buy(message: Message, users: Users, cart: Cart, state: FSMContext) -> None:
-    product_ids, numbers = await cart.get_full_cart(message.from_user.id)
+    product_ids, numbers, prices = await cart.get_full_cart(message.from_user.id)
     language = await users.get_language(message.from_user.id)
 
     amount = 0
@@ -54,25 +62,26 @@ async def buy(message: Message, users: Users, cart: Cart, state: FSMContext) -> 
     await state.update_data(amount=amount)
 
     if language == 'ru':
-        await message.answer(
+        msg = await message.answer(
             text=f"""
             Введите, пожалуйста, свое имя
             """,
             reply_markup=rkb_name()
         )
     else:
-        await message.answer(
+        msg = await message.answer(
             text=f"""
             Iltimos, ismingizni yuboring
             """,
             reply_markup=rkb_name_uz()
         )
+    message_list.append(msg.message_id)
     await state.set_state(UserState.name)
 
 
 @router.message(F.text, UserState.name)
-@router.message(F.text == '🔙 Назад', UserState.phone)
-@router.message(F.text == '🔙 Orqaga', UserState.phone)
+@router.message(F.text == '🔙 Назад', UserState.geo)
+@router.message(F.text == '🔙 Orqaga', UserState.geo)
 async def get_name(message: Message, users: Users, state: FSMContext) -> None:
     name = message.text
     await state.update_data(name=name)
@@ -99,10 +108,10 @@ async def get_name(message: Message, users: Users, state: FSMContext) -> None:
 
 @router.message(F.text, UserState.phone)
 @router.message(F.contact, UserState.phone)
-@router.message(F.text == '🔙 Назад', UserState.geo)
-@router.message(F.text == '🔙 Orqaga', UserState.geo)
+@router.message(F.text == '🔙 Назад', UserState.payment)
+@router.message(F.text == '🔙 Orqaga', UserState.payment)
 async def get_phone(message: Message, users: Users, state: FSMContext) -> None:
-    if message.contact.phone_number:
+    if message.contact is not None and message.contact.phone_number:
         phone = message.contact.phone_number
     else:
         phone = message.text
@@ -159,8 +168,10 @@ async def get_geo(message: Message, users: Users, state: FSMContext) -> None:
     message_list.append(msg.message_id)
     await users.update_user_data(message.from_user.id, name, phone)
 
+    await state.set_state(UserState.payment)
 
-@router.message(F.text == 'Click')
+
+@router.message(F.text == 'Click', UserState.payment)
 async def click(message: Message, bot: Bot, users: Users, state: FSMContext):
     data = await state.get_data()
     await state.update_data(payment='1')
@@ -241,7 +252,7 @@ async def click(message: Message, bot: Bot, users: Users, state: FSMContext):
     message_list.append(msg.message_id)
 
 
-@router.message(F.text == 'Paycom')
+@router.message(F.text == 'Paycom', UserState.payment)
 async def pay_com(message: Message, bot: Bot, users: Users, state: FSMContext):
     data = await state.get_data()
     await state.update_data(payment='2')
@@ -336,6 +347,7 @@ async def payment(message: Message, bot, users: Users, cart: Cart, state: FSMCon
     total = data.get('amount')
     payment_method = data.get('payment')
 
+    await state.clear()
     await del_message(bot, message, message_list)
 
     city, address = get_location_info(latitude, longitude)
@@ -400,8 +412,8 @@ async def payment(message: Message, bot, users: Users, cart: Cart, state: FSMCon
         )
 
 
-@router.message(F.text == 'Наличными курьеру')
-@router.message(F.text == 'Kuryerga naqd pul')
+@router.message(F.text == 'Наличными курьеру', UserState.payment)
+@router.message(F.text == 'Kuryerga naqd pul', UserState.payment)
 async def cash(message: Message, bot: Bot, users: Users, cart: Cart, state: FSMContext) -> None:
     data = await state.get_data()
     name = data.get('name')
@@ -412,7 +424,6 @@ async def cash(message: Message, bot: Bot, users: Users, cart: Cart, state: FSMC
     payment_method = 3
 
     await del_message(bot, message, message_list)
-
     city, address = get_location_info(latitude, longitude)
 
     product_ids, numbers, prices = await cart.get_full_cart(message.from_user.id)
@@ -468,3 +479,5 @@ async def cash(message: Message, bot: Bot, users: Users, cart: Cart, state: FSMC
             """,
             reply_markup=rkb_menu_uz
         )
+
+    await state.clear()

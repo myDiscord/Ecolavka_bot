@@ -35,20 +35,11 @@ def rkb_categories_uz(categories, language) -> ReplyKeyboardMarkup:
     builder.button(text='🔙 Orqaga')
     builder.button(text='🚪Asosiy menyu')
 
-    if isinstance(categories, list):
-        n = len(categories)
-        for category in categories:
-            builder.button(text=f'{category[f"title_{language}"].split(" ")[-1].capitalize()}')
+    n = len(categories)
+    for category in categories:
+        builder.button(text=f'{category[f"title_{language}"].split(" ")[-1].capitalize()}')
 
-        builder.adjust(2, * [2] * n)
-
-    else:
-        builder.button(text=f'{categories[f"title_{language}"]}')
-
-        builder.button(text='🔙 Orqaga')
-        builder.button(text='🚪Asosiy menyu')
-
-        builder.adjust(1, 2)
+    builder.adjust(2, * [2] * n)
 
     return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
 
@@ -75,9 +66,26 @@ def rkb_products_uz(products, language) -> ReplyKeyboardMarkup:
 
     n = len(products)
     for product in products:
-        text = product[f'title_{language}']
-        text = text.replace('MAYERI ALL-Care', '', 1)
-        text = text.replace('MAYERI Sensitive', '', 1)
+        text = product[f'title_{language}'].lower()
+        text = text.replace('mayeri all-care', '', 1)
+        text = text.replace('mayeri sensitive', '', 1)
+        builder.button(text=text.capitalize())
+
+    builder.adjust(2, * [1] * n)
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
+
+
+def rkb_care_uz(products, language) -> ReplyKeyboardMarkup:
+    builder = ReplyKeyboardBuilder()
+
+    builder.button(text='🗂 Katalogi')
+    builder.button(text='🚪Asosiy menyu')
+
+    n = len(products)
+    for product in products:
+        text = product[f'title_{language}'].lower()
+        text = text.replace('mayeri all-care', '', 1)
+        text = text.replace('mayeri sensitive', '', 1)
         builder.button(text=text.capitalize())
 
     builder.adjust(2, * [1] * n)

@@ -41,10 +41,9 @@ rkb_geo = ReplyKeyboardMarkup(keyboard=[
 def rkb_name() -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
 
-    builder.button(text='🔙 Назад')
     builder.button(text='🚪Главное меню')
 
-    builder.adjust(2)
+    builder.adjust(1)
     return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
 
 

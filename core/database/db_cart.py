@@ -35,27 +35,32 @@ class Cart:
         """, user_id)
         return [row["product_name"] for row in query] or None
 
-    async def get_id_number(self, user_id: int, product_name: str):
-        product_id, number = await self.connector.fetch("""
+    async def get_id_number(self, user_id, product_name):
+        row = await self.connector.fetchrow("""
             SELECT product_id, number
             FROM cart
             WHERE user_id = $1 AND product_name = $2
         """, user_id, product_name)
-        return product_id or None, number or None
+        if row:
+            product_id, number = row['product_id'], row['number']
+        else:
+            product_id, number = None, None
+        return product_id, number
 
     async def get_full_cart(self, user_id: int):
         rows = await self.connector.fetch("""
-            SELECT product_id, number
+            SELECT product_id, number, price
             FROM cart
             WHERE user_id = $1
         """, user_id)
 
         product_ids = [row["product_id"] for row in rows]
         numbers = [row["number"] for row in rows]
+        prices = [row["price"] for row in rows]
         if product_ids:
-            return product_ids, numbers
+            return product_ids, numbers, prices
         else:
-            return None, None
+            return None, None, None
 
     async def update_number(self, user_id: int, product_id: int, new_number: int):
         await self.connector.execute("""

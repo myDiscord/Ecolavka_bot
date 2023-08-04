@@ -16,8 +16,8 @@ router = Router()
 
 @router.message(F.text == "📰 Yangiliklar")
 @router.message(F.text == "📰 Новости")
-@router.message(F.text == "📰 Orqaga", UserState.news)
-@router.message(F.text == "📰 Новости", UserState.news)
+@router.message(F.text == "🔙 Orqaga", UserState.news)
+@router.message(F.text == "🔙 Назад", UserState.news)
 async def show_news(message: Message, bot: Bot, users: Users, state: FSMContext) -> None:
     await state.clear()
 
@@ -48,13 +48,13 @@ async def show_news(message: Message, bot: Bot, users: Users, state: FSMContext)
 
 @router.message(F.text, UserState.news)
 async def show_post(message: Message, bot: Bot, users: Users) -> None:
-    post_id = int(message.text)
+    title = message.text
 
     await del_message(bot, message, message_list)
 
     language = await users.get_language(message.from_user.id)
 
-    post = await get_post(language, post_id)
+    post = await get_post(language, title)
 
     cleaned_text = re.sub(r'<.*?>', '', post[f'text_{language}'])
 

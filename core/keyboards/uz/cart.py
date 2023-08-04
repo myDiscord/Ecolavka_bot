@@ -5,12 +5,12 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 def rkb_cart_uz(products) -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
 
+    builder.button(text='💳 Buyurtma')
+    builder.button(text='🚪Asosiy menyu')
+
     n = len(products)
     for product in products:
         builder.button(text=product)
-
-    builder.button(text='💳 Buyurtma')
-    builder.button(text='🚪Asosiy menyu')
 
     builder.adjust(2, * [1] * n)
     return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)

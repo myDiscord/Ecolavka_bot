@@ -7,9 +7,9 @@ from core.database.db_mysql import get_brands, get_lines, get_categories, get_pr
     get_line_id, get_subcategories, get_subcategory_id
 from core.database.db_users import Users
 from core.keyboards.ru.catalog import rkb_brands, rkb_lines, rkb_categories, rkb_products, rkb_product, \
-    rkb_product_in_cart, rkb_subcategories
+    rkb_product_in_cart, rkb_subcategories, rkb_care
 from core.keyboards.uz.catalog import rkb_brands_uz, rkb_lines_uz, rkb_categories_uz, rkb_products_uz, rkb_product_uz, \
-    rkb_product_in_cart_uz, rkb_subcategories_uz
+    rkb_product_in_cart_uz, rkb_subcategories_uz, rkb_care_uz
 
 from core.utils.chat_cleaner import del_message, message_list
 from core.utils.states import UserState
@@ -19,8 +19,8 @@ router = Router()
 
 @router.message(F.text == "🗂 Mahsulot katalogi")
 @router.message(F.text == "🗂 Каталог продукции")
-@router.message(F.text == "🔙 Назад", UserState.brand)
-@router.message(F.text == "🔙 Orqaga", UserState.brand)
+@router.message(F.text == "🔙 Назад", UserState.lines)
+@router.message(F.text == "🔙 Orqaga", UserState.lines)
 async def show_brands(message: Message, bot: Bot, users: Users, state: FSMContext) -> None:
     await state.clear()
 
@@ -50,10 +50,15 @@ async def show_brands(message: Message, bot: Bot, users: Users, state: FSMContex
 
 
 @router.message(F.text, UserState.brand)
-@router.message(F.text == '🔙 Назад', UserState.lines)
-@router.message(F.text == '🔙 Orqaga', UserState.lines)
+@router.message(F.text == '🔙 Назад', UserState.category)
+@router.message(F.text == '🔙 Orqaga', UserState.category)
+@router.message(F.text == '🗂 Каталог', UserState.products)
+@router.message(F.text == '🗂 Katalogi', UserState.products)
 async def show_lines(message: Message, bot: Bot, users: Users, state: FSMContext) -> None:
     brand_name = message.text
+    if brand_name in ['🔙 Назад', '🔙 Orqaga', '🗂 Каталог', '🗂 Katalogi']:
+        data = await state.get_data()
+        brand_name = data.get('brand_name')
     await state.update_data(brand_name=brand_name)
 
     language = await users.get_language(message.from_user.id)
@@ -81,12 +86,19 @@ async def show_lines(message: Message, bot: Bot, users: Users, state: FSMContext
 
 
 @router.message(F.text, UserState.lines)
-@router.message(F.text == '🔙 Назад', UserState.category)
-@router.message(F.text == '🔙 Orqaga', UserState.category)
+@router.message(F.text == '🔙 Назад', UserState.subcategory)
+@router.message(F.text == '🔙 Orqaga', UserState.subcategory)
 async def show_categories(message: Message, bot: Bot, users: Users, state: FSMContext) -> None:
     line_name = message.text.upper()
+    if line_name in ['🔙 НАЗАД', '🔙 ORGAGA']:
+        data = await state.get_data()
+        line_name = data.get('line_name')
     line_id = await get_line_id(line_name)
     await state.update_data(line_name=line_name, line_id=line_id)
+
+    if line_name == 'УХОДОВАЯ':
+        await show_care(message, bot, users, state)
+        return
 
     language = await users.get_language(message.from_user.id)
     categories = await get_categories(language, line_name)
@@ -113,10 +125,13 @@ async def show_categories(message: Message, bot: Bot, users: Users, state: FSMCo
 
 
 @router.message(F.text, UserState.category)
-@router.message(F.text == '🔙 Назад', UserState.product)
-@router.message(F.text == '🔙 Orqaga', UserState.product)
+@router.message(F.text == '🔙 Назад', UserState.products)
+@router.message(F.text == '🔙 Orqaga', UserState.products)
 async def show_subcategory(message: Message, bot: Bot, users: Users, state: FSMContext) -> None:
     category_name = message.text
+    if category_name in ['🔙 Назад', '🔙 Orqaga']:
+        data = await state.get_data()
+        category_name = data.get('category_name')
     data = await state.get_data()
     line_id = data.get('line_id')
     category_id = await get_category_id(category_name, line_id)
@@ -143,14 +158,21 @@ async def show_subcategory(message: Message, bot: Bot, users: Users, state: FSMC
         )
     message_list.append(msg.message_id)
 
-    await state.set_state(UserState.products)
+    await state.set_state(UserState.subcategory)
 
 
-@router.message(F.text, UserState.products)
+@router.message(F.text, UserState.subcategory)
 @router.message(F.text == '🔙 Назад', UserState.product)
 @router.message(F.text == '🔙 Orqaga', UserState.product)
 async def show_products(message: Message, bot: Bot, users: Users, state: FSMContext) -> None:
     subcategory_name = message.text
+    if subcategory_name in ['🔙 Назад', '🔙 Orqaga']:
+        data = await state.get_data()
+        subcategory_name = data.get('subcategory_name')
+        if subcategory_name == 'Уходовая':
+            await show_care(message, bot, users, state)
+            return
+
     language = await users.get_language(message.from_user.id)
     subcategory_id = (await get_subcategory_id(subcategory_name, language))
     await state.update_data(subcategory_name=subcategory_name, subcategory_id=subcategory_id)
@@ -175,14 +197,46 @@ async def show_products(message: Message, bot: Bot, users: Users, state: FSMCont
         )
     message_list.append(msg.message_id)
 
-    await state.set_state(UserState.product)
+    await state.set_state(UserState.products)
 
 
-@router.message(F.text, UserState.product)
+async def show_care(message: Message, bot: Bot, users: Users, state: FSMContext) -> None:
+    subcategory_name = 'Уходовая'
+    language = await users.get_language(message.from_user.id)
+    subcategory_id = 17
+    await state.update_data(subcategory_name=subcategory_name, subcategory_id=subcategory_id)
+
+    products = await get_products(subcategory_id, language)
+
+    await del_message(bot, message, message_list)
+
+    if language == 'ru':
+        msg = await message.answer(
+            text=f"""
+            Выберите продукт:
+            """,
+            reply_markup=rkb_care(products, language)
+        )
+    else:
+        msg = await message.answer(
+            text=f"""
+            Mahsulotni tanlang:
+            """,
+            reply_markup=rkb_care_uz(products, language)
+        )
+    message_list.append(msg.message_id)
+
+    await state.set_state(UserState.products)
+
+
+@router.message(F.text, UserState.products)
 @router.message(F.text == '🔙 Назад', UserState.cart)
 @router.message(F.text == '🔙 Orqaga', UserState.cart)
 async def show_product(message: Message, bot: Bot, users: Users, state: FSMContext) -> None:
     product_name = message.text
+    if product_name in ['🔙 Назад', '🔙 Orqaga']:
+        data = await state.get_data()
+        product_name = data.get('product_name')
     await state.update_data(product_name=product_name)
 
     language = await users.get_language(message.from_user.id)
@@ -218,11 +272,11 @@ async def show_product(message: Message, bot: Bot, users: Users, state: FSMConte
         )
     message_list.append(msg.message_id)
 
-    await state.set_state(UserState.cart)
+    await state.set_state(UserState.product)
 
 
-@router.message(F.text == '✅ Добавить в корзину', UserState.cart)
-@router.message(F.text == "✅ Savatga qo'shish", UserState.cart)
+@router.message(F.text == '✅ Добавить в корзину', UserState.product)
+@router.message(F.text == "✅ Savatga qo'shish", UserState.product)
 async def add_product(message: Message, bot: Bot, cart: Cart, state: FSMContext) -> None:
     data = await state.get_data()
     product_id = data.get('product_id')
@@ -255,3 +309,5 @@ async def add_product(message: Message, bot: Bot, cart: Cart, state: FSMContext)
             reply_markup=rkb_product_in_cart_uz()
         )
     message_list.append(msg.message_id)
+
+    await state.set_state(UserState.cart)

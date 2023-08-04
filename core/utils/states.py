@@ -9,6 +9,7 @@ class UserState(StatesGroup):
     brand = State()
     lines = State()
     category = State()
+    subcategory = State()
     products = State()
     product = State()
     cart = State()
@@ -18,3 +19,5 @@ class UserState(StatesGroup):
     name = State()
     phone = State()
     geo = State()
+
+    payment = State()

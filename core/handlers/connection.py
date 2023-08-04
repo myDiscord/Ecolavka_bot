@@ -3,8 +3,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from core.database.db_users import Users
-from core.keyboards.ru.conection import rkb_connection
-from core.keyboards.uz.conection import rkb_connection_uz
+from core.keyboards.ru.reply import rkb_menu_ru
+from core.keyboards.uz.reply import rkb_menu_uz
 from core.settings import settings
 from core.utils.chat_cleaner import del_message, message_list
 
@@ -27,7 +27,7 @@ async def show_connection(message: Message, bot: Bot, users: Users, state: FSMCo
 📱<a href="t.me/{settings.contacts.manager}">Связь с менеджером</a>
             """,
             parse_mode='HTML',
-            reply_markup=rkb_connection()
+            reply_markup=rkb_menu_ru
         )
     else:
         msg = await message.answer(
@@ -36,6 +36,6 @@ async def show_connection(message: Message, bot: Bot, users: Users, state: FSMCo
 📱<a href="t.me/{settings.contacts.manager}">Chat menejeri</a>
             """,
             parse_mode='HTML',
-            reply_markup=rkb_connection_uz()
+            reply_markup=rkb_menu_uz
         )
     message_list.append(msg.message_id)

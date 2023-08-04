@@ -230,20 +230,20 @@ async def get_news(language):
     return query
 
 
-async def get_post(language: str, post_id: int):
+async def get_post(language: str, title: str):
     con, cur = await create_dict_con()
     if language == 'ru':
         await cur.execute("""
         SELECT title_ru, text_ru, img 
         FROM news 
-        WHERE id=%s
-        """, (post_id,))
+        WHERE title_ru=%s
+        """, (title,))
     elif language == 'uz':
         await cur.execute("""
         SELECT title_uz, text_uz, img 
         FROM news 
-        WHERE id=%s
-        """, (post_id,))
+        WHERE title_uz=%s
+        """, (title,))
     query = await cur.fetchone()
     await con.ensure_closed()
     return query
