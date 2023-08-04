@@ -16,7 +16,6 @@ from core.utils.commands import set_commands
 from core.utils.db_create import check_database_exists, create_database
 
 from core.handlers.routers import user_router
-from test import router
 
 
 async def start_bot(bot: Bot, users: Users, cart: Cart) -> None:
@@ -55,7 +54,6 @@ async def start():
     dp.shutdown.register(stop_bot)
 
     dp.include_routers(
-        router,
         user_router
     )
 
