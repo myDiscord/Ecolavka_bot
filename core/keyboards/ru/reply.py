@@ -11,7 +11,7 @@ rkb_language = ReplyKeyboardMarkup(keyboard=[
             text="🇷🇺 Русский"
         )
     ]
-], resize_keyboard=True, one_time_keyboard=True, selective=True)
+], resize_keyboard=True, one_time_keyboard=False, selective=True)
 
 
 rkb_menu_ru = ReplyKeyboardMarkup(keyboard=[
@@ -41,7 +41,7 @@ rkb_menu_ru = ReplyKeyboardMarkup(keyboard=[
             text='🧺 Корзина'
         )
     ]
-], resize_keyboard=True, one_time_keyboard=True, selective=True)
+], resize_keyboard=True, one_time_keyboard=False, selective=True)
 
 
 rkb_manager = ReplyKeyboardMarkup(keyboard=[
@@ -54,4 +54,4 @@ rkb_manager = ReplyKeyboardMarkup(keyboard=[
             text='🔙 Главное меню'
         )
     ]
-], resize_keyboard=True, one_time_keyboard=True, selective=True)
+], resize_keyboard=True, one_time_keyboard=False, selective=True)

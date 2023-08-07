@@ -24,6 +24,7 @@ async def show_connection(message: Message, bot: Bot, users: Users, state: FSMCo
         msg = await message.answer(
             text=f"""
             ☎️ Контактный телефон: <code>{settings.contacts.phone}</code>
+            
 📱<a href="t.me/{settings.contacts.manager}">Связь с менеджером</a>
             """,
             parse_mode='HTML',
@@ -33,6 +34,7 @@ async def show_connection(message: Message, bot: Bot, users: Users, state: FSMCo
         msg = await message.answer(
             text=f"""
             ☎️ Aloqa telefon raqami: <code>{settings.contacts.phone}</code>
+            
 📱<a href="t.me/{settings.contacts.manager}">Chat menejeri</a>
             """,
             parse_mode='HTML',

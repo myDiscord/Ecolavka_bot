@@ -13,7 +13,7 @@ def rkb_cart(products) -> ReplyKeyboardMarkup:
         builder.button(text=product)
 
     builder.adjust(2, * [1] * n)
-    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=False)
 
 
 def rkb_cart_product(number: int) -> ReplyKeyboardMarkup:
@@ -38,4 +38,4 @@ def rkb_cart_product(number: int) -> ReplyKeyboardMarkup:
 
         builder.adjust(2, 1, 2)
 
-    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=False)

@@ -277,14 +277,14 @@ async def show_product(message: Message, bot: Bot, users: Users, state: FSMConte
 
 @router.message(F.text == '✅ Добавить в корзину', UserState.product)
 @router.message(F.text == "✅ Savatga qo'shish", UserState.product)
-async def add_product(message: Message, bot: Bot, cart: Cart, state: FSMContext) -> None:
+async def add_product(message: Message, bot: Bot, users: Users, cart: Cart, state: FSMContext) -> None:
     data = await state.get_data()
     product_id = data.get('product_id')
     product_name = data.get('product_name')
-    language = data.get('language')
     title = data.get('title')
     photo = data.get('photo')
     price = data.get('price')
+    language = await users.get_language(message.from_user.id)
 
     await del_message(bot, message, message_list)
 

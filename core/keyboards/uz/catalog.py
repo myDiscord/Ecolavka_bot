@@ -66,10 +66,12 @@ def rkb_products_uz(products, language) -> ReplyKeyboardMarkup:
 
     n = len(products)
     for product in products:
-        text = product[f'title_{language}'].lower()
-        text = text.replace('mayeri all-care', '', 1)
-        text = text.replace('mayeri sensitive', '', 1)
-        builder.button(text=text.capitalize())
+        text = product[f'title_{language}']
+        # if text.lower.strtswith('mayeri all-care'):
+        #     text = text.replace('mayeri all-care', '', 1)
+        # elif text.lower.strtswith('mayeri sensitive'):
+        #     text = text.replace('mayeri sensitive', '', 1)
+        builder.button(text=text)
 
     builder.adjust(2, * [1] * n)
     return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)

@@ -24,7 +24,7 @@ def rkb_account(data) -> ReplyKeyboardMarkup:
         builder.button(text='🚪Главное меню')
 
         builder.adjust(1, 1)
-    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=False)
 
 
 def rkb_account_2() -> ReplyKeyboardMarkup:
@@ -34,4 +34,4 @@ def rkb_account_2() -> ReplyKeyboardMarkup:
     builder.button(text='🚪Главное меню')
 
     builder.adjust(2)
-    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=False)

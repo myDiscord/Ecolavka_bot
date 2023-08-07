@@ -17,7 +17,7 @@ rkb_phone = ReplyKeyboardMarkup(keyboard=[
             text="🚪Главное меню"
         )
     ]
-], resize_keyboard=True, one_time_keyboard=True, selective=True)
+], resize_keyboard=True, one_time_keyboard=False, selective=True)
 
 
 rkb_geo = ReplyKeyboardMarkup(keyboard=[
@@ -35,7 +35,7 @@ rkb_geo = ReplyKeyboardMarkup(keyboard=[
             text="🚪Главное меню"
         )
     ]
-], resize_keyboard=True, one_time_keyboard=True, selective=True)
+], resize_keyboard=True, one_time_keyboard=False, selective=True)
 
 
 def rkb_name() -> ReplyKeyboardMarkup:
@@ -44,7 +44,7 @@ def rkb_name() -> ReplyKeyboardMarkup:
     builder.button(text='🚪Главное меню')
 
     builder.adjust(1)
-    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=False)
 
 
 def rkb_pay() -> ReplyKeyboardMarkup:
@@ -58,4 +58,4 @@ def rkb_pay() -> ReplyKeyboardMarkup:
     builder.button(text='🚪Главное меню')
 
     builder.adjust(2, 1, 2)
-    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=False)

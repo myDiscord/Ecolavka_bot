@@ -12,7 +12,7 @@ def rkb_brands(brands) -> ReplyKeyboardMarkup:
     builder.button(text='🚪Главное меню')
 
     builder.adjust(* [1] * n, 1)
-    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=False)
 
 
 def rkb_lines(brand_lines) -> ReplyKeyboardMarkup:
@@ -23,10 +23,10 @@ def rkb_lines(brand_lines) -> ReplyKeyboardMarkup:
 
     n = len(brand_lines)
     for brand_line in brand_lines:
-        builder.button(text=f'{brand_line["title"].split(" ")[-1].capitalize()}')
+        builder.button(text=f'{brand_line["title"].split(" ")[-1]}')
 
     builder.adjust(2, * [2] * n)
-    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=False)
 
 
 def rkb_categories(categories, language) -> ReplyKeyboardMarkup:
@@ -37,11 +37,11 @@ def rkb_categories(categories, language) -> ReplyKeyboardMarkup:
 
     n = len(categories)
     for category in categories:
-        builder.button(text=f'{category[f"title_{language}"].split(" ")[-1].capitalize()}')
+        builder.button(text=f'{category[f"title_{language}"].split(" ")[-1]}')
 
     builder.adjust(2, * [2] * n)
 
-    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=False)
 
 
 def rkb_subcategories(subcategories, language) -> ReplyKeyboardMarkup:
@@ -55,7 +55,7 @@ def rkb_subcategories(subcategories, language) -> ReplyKeyboardMarkup:
         builder.button(text=subcategory[f'title_{language}'])
 
     builder.adjust(2, * [2] * n)
-    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=False)
 
 
 def rkb_products(products, language) -> ReplyKeyboardMarkup:
@@ -66,13 +66,15 @@ def rkb_products(products, language) -> ReplyKeyboardMarkup:
 
     n = len(products)
     for product in products:
-        text = product[f'title_{language}'].lower()
-        text = text.replace('mayeri all-care', '', 1)
-        text = text.replace('mayeri sensitive', '', 1)
-        builder.button(text=text.capitalize())
+        text = product[f'title_{language}']
+        # if text.lower.strtswith('mayeri all-care'):
+        #     text = text.replace('mayeri all-care', '', 1)
+        # elif text.lower.strtswith('mayeri sensitive'):
+        #     text = text.replace('mayeri sensitive', '', 1)
+        builder.button(text=text)
 
     builder.adjust(2, * [1] * n)
-    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=False)
 
 
 def rkb_care(products, language) -> ReplyKeyboardMarkup:
@@ -86,10 +88,10 @@ def rkb_care(products, language) -> ReplyKeyboardMarkup:
         text = product[f'title_{language}'].lower()
         text = text.replace('mayeri all-care', '', 1)
         text = text.replace('mayeri sensitive', '', 1)
-        builder.button(text=text.capitalize())
+        builder.button(text=text)
 
     builder.adjust(2, * [1] * n)
-    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=False)
 
 
 def rkb_product() -> ReplyKeyboardMarkup:
@@ -100,7 +102,7 @@ def rkb_product() -> ReplyKeyboardMarkup:
     builder.button(text='🚪Главное меню')
 
     builder.adjust(1, 2)
-    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=False)
 
 
 def rkb_product_in_cart() -> ReplyKeyboardMarkup:
@@ -112,4 +114,4 @@ def rkb_product_in_cart() -> ReplyKeyboardMarkup:
     builder.button(text='🚪Главное меню')
 
     builder.adjust(1, 2)
-    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=False)
