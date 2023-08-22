@@ -14,7 +14,7 @@ rkb_phone_uz = ReplyKeyboardMarkup(keyboard=[
             text="🔙 Orqaga"
         ),
         KeyboardButton(
-            text="🚪Asosiy menyu"
+            text="📖 Asosiy menyu"
         )
     ]
 ], resize_keyboard=True, one_time_keyboard=True, selective=True)
@@ -32,7 +32,7 @@ rkb_geo_uz = ReplyKeyboardMarkup(keyboard=[
             text="🔙 Orqaga"
         ),
         KeyboardButton(
-            text="🚪Asosiy menyu"
+            text="📖 Asosiy menyu"
         )
     ]
 ], resize_keyboard=True, one_time_keyboard=True, selective=True)
@@ -42,7 +42,7 @@ def rkb_name_uz() -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
 
     builder.button(text='🔙 Orqaga')
-    builder.button(text='🚪Asosiy menyu')
+    builder.button(text='📖 Asosiy menyu')
 
     builder.adjust(2)
     return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
@@ -56,7 +56,7 @@ def rkb_pay_uz() -> ReplyKeyboardMarkup:
     builder.button(text='Kuryerga naqd pul')
 
     builder.button(text='🔙 Orqaga')
-    builder.button(text='🚪Asosiy meny')
+    builder.button(text='📖 Asosiy meny')
 
     builder.adjust(2, 1, 2)
     return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)

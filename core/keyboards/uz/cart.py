@@ -6,7 +6,7 @@ def rkb_cart_uz(products) -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
 
     builder.button(text='💳 Buyurtma')
-    builder.button(text='🚪Asosiy menyu')
+    builder.button(text='📖 Asosiy menyu')
 
     n = len(products)
     for product in products:
@@ -24,7 +24,7 @@ def rkb_cart_product_uz(number: int) -> ReplyKeyboardMarkup:
         builder.button(text="✖️mahsulotni o'chirish")
 
         builder.button(text='🔙 Orqaga')
-        builder.button(text='🚪Asosiy menyu')
+        builder.button(text='📖 Asosiy menyu')
 
         builder.adjust(1, 1, 2)
 
@@ -34,7 +34,7 @@ def rkb_cart_product_uz(number: int) -> ReplyKeyboardMarkup:
         builder.button(text="✖️mahsulotni o'chirish")
 
         builder.button(text='🔙 Orqaga')
-        builder.button(text='🚪Asosiy menyu')
+        builder.button(text='📖 Asosiy menyu')
 
         builder.adjust(2, 1, 2)
 

@@ -9,7 +9,7 @@ def rkb_brands(brands) -> ReplyKeyboardMarkup:
     for brand in brands:
         builder.button(text=f'{brand["title"]}')
 
-    builder.button(text='🚪Главное меню')
+    builder.button(text='📖 Главное меню')
 
     builder.adjust(* [1] * n, 1)
     return builder.as_markup(resize_keyboard=True, one_time_keyboard=False)
@@ -19,7 +19,7 @@ def rkb_lines(brand_lines) -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
 
     builder.button(text='🔙 Назад')
-    builder.button(text='🚪Главное меню')
+    builder.button(text='📖 Главное меню')
 
     n = len(brand_lines)
     for brand_line in brand_lines:
@@ -33,7 +33,7 @@ def rkb_categories(categories, language) -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
 
     builder.button(text='🔙 Назад')
-    builder.button(text='🚪Главное меню')
+    builder.button(text='📖 Главное меню')
 
     n = len(categories)
     for category in categories:
@@ -48,7 +48,7 @@ def rkb_subcategories(subcategories, language) -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
 
     builder.button(text='🔙 Назад')
-    builder.button(text='🚪Главное меню')
+    builder.button(text='📖 Главное меню')
 
     n = len(subcategories)
     for subcategory in subcategories:
@@ -62,7 +62,7 @@ def rkb_products(products, language) -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
 
     builder.button(text='🔙 Назад')
-    builder.button(text='🚪Главное меню')
+    builder.button(text='📖 Главное меню')
 
     n = len(products)
     for product in products:
@@ -81,7 +81,7 @@ def rkb_care(products, language) -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
 
     builder.button(text='🗂 Каталог')
-    builder.button(text='🚪Главное меню')
+    builder.button(text='📖 Главное меню')
 
     n = len(products)
     for product in products:
@@ -99,7 +99,7 @@ def rkb_product() -> ReplyKeyboardMarkup:
 
     builder.button(text='✅ Добавить в корзину')
     builder.button(text='🔙 Назад')
-    builder.button(text='🚪Главное меню')
+    builder.button(text='📖 Главное меню')
 
     builder.adjust(1, 2)
     return builder.as_markup(resize_keyboard=True, one_time_keyboard=False)
@@ -111,7 +111,7 @@ def rkb_product_in_cart() -> ReplyKeyboardMarkup:
     builder.button(text='🧺 Корзина')
 
     builder.button(text='🔙 Назад')
-    builder.button(text='🚪Главное меню')
+    builder.button(text='📖 Главное меню')
 
     builder.adjust(1, 2)
     return builder.as_markup(resize_keyboard=True, one_time_keyboard=False)

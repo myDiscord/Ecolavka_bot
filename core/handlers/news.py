@@ -37,7 +37,7 @@ async def show_news(message: Message, bot: Bot, users: Users, state: FSMContext)
     else:
         msg = await message.answer(
             text=f"""
-            Yangiliklar va aktsiyalar:
+            Yangiliklar va aksiyalar:
             """,
             reply_markup=rkb_news_uz(news, language)
         )

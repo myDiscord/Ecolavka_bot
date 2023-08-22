@@ -32,6 +32,13 @@ class Users:
             WHERE telegram_id = $3
         """, name, phone, telegram_id)
 
+    async def change_language(self, telegram_id, new_language):
+        await self.connector.execute("""
+            UPDATE users
+            SET language = $2
+            WHERE telegram_id = $1
+        """, telegram_id, new_language)
+
     async def get_language(self, telegram_id):
         query = await self.connector.fetchval("""
         SELECT language 

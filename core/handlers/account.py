@@ -97,9 +97,38 @@ async def show_account(message: Message, bot: Bot, users: Users, state: FSMConte
     await state.set_state(UserState.account)
 
 
+@router.message(F.text == "🇺🇿 Сменить язык", UserState.account)
+@router.message(F.text == "🇷🇺 Tilni o'zgartirish", UserState.account)
+async def change_language(message: Message, bot: Bot, users: Users) -> None:
+    text = message.text
+
+    await del_message(bot, message, message_list)
+
+    if text == "🇺🇿 Сменить язык":
+        await users.change_language(message.from_user.id, 'uz')
+
+        msg = await message.answer(
+            text="""
+            Til o'zgartirildi
+            """,
+            reply_markup=rkb_menu_uz
+        )
+
+    else:
+        await users.change_language(message.from_user.id, 'ru')
+
+        msg = await message.answer(
+            text="""
+            Язык изменен
+            """,
+            reply_markup=rkb_menu_ru
+        )
+    message_list.append(msg.message_id)
+
+
 @router.message(F.text, UserState.account)
 async def order(message: Message, bot: Bot, users: Users) -> None:
-    updated_at = message.text
+    updated_at = message.text.split(': ')[-1]
 
     await del_message(bot, message, message_list)
 

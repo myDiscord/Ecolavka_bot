@@ -7,7 +7,7 @@ def rkb_news(news: list, language: str) -> ReplyKeyboardMarkup:
 
     n = len(news)
 
-    builder.button(text='🚪Главное меню')
+    builder.button(text='📖 Главное меню')
 
     for post in news:
         builder.button(text=f'{post[f"title_{language}"]}')
@@ -21,7 +21,7 @@ def rkb_post() -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
 
     builder.button(text='🔙 Назад')
-    builder.button(text='🚪Главное меню')
+    builder.button(text='📖 Главное меню')
 
     builder.adjust(2)
     return builder.as_markup(resize_keyboard=True, one_time_keyboard=False)

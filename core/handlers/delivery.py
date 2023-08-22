@@ -34,11 +34,11 @@ async def show_delivery(message: Message, bot: Bot, users: Users, state: FSMCont
     else:
         msg = await message.answer(
             text="""
-            <b>Etkazib berish</b>
+            <b>Yetkazib berish</b>
 Yetkazib berish faqat Toshkent shahri hududida amalga oshiriladi
-Hozirda yetkazib berish narxi 10 000 so'm va kurerga alohida to'lanadi
+Hozirda yetkazib berish narxi 10 000 so'm va yetkazish xizmatiga alohida to'lanadi
 Yetkazib berish kun davomida buyurtmadan keyingi kun amalga oshiriladi.
-Kuryerlar siz uchun qoldirilgan raqamga oldindan qo'ng'iroq qilishadi va taxminiy etkazib berish muddati haqida ogohlantiradilar
+Yetkazuvchilar siz uchun qoldirilgan raqamga oldindan qo'ng'iroq qilishadi va taxminiy yetkazib berish muddati haqida ogohlantiradilar
             """,
             parse_mode='HTML',
             reply_markup=rkb_menu_uz

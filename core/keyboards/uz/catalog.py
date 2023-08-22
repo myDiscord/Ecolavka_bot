@@ -62,7 +62,7 @@ def rkb_products_uz(products, language) -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
 
     builder.button(text='🔙 Orqaga')
-    builder.button(text='🚪Asosiy menyu')
+    builder.button(text='📖 Asosiy menyu')
 
     n = len(products)
     for product in products:
@@ -81,7 +81,7 @@ def rkb_care_uz(products, language) -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
 
     builder.button(text='🗂 Katalogi')
-    builder.button(text='🚪Asosiy menyu')
+    builder.button(text='📖 Asosiy menyu')
 
     n = len(products)
     for product in products:
@@ -99,7 +99,7 @@ def rkb_product_uz() -> ReplyKeyboardMarkup:
 
     builder.button(text="✅ Savatga qo'shish")
     builder.button(text='🔙 Orqaga')
-    builder.button(text='🚪Asosiy menyu')
+    builder.button(text='📖 Asosiy menyu')
 
     builder.adjust(1, 2)
     return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
@@ -111,7 +111,7 @@ def rkb_product_in_cart_uz() -> ReplyKeyboardMarkup:
     builder.button(text='🧺 Savat')
 
     builder.button(text='🔙 Orqaga')
-    builder.button(text='🚪Asosiy menyu')
+    builder.button(text='📖 Asosiy menyu')
 
     builder.adjust(1, 2)
     return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)

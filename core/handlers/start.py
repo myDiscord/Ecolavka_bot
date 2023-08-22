@@ -41,8 +41,8 @@ async def cmd_start(message: Message, users: Users, state: FSMContext) -> None:
     message_list.append(msg.message_id)
 
 
-@router.message(F.text == '🚪Asosiy menyu')
-@router.message(F.text == '🚪Главное меню')
+@router.message(F.text == '📖 Asosiy menyu')
+@router.message(F.text == '📖 Главное меню')
 async def cmd_start(message: Message, bot: Bot, users: Users, state: FSMContext) -> None:
     await state.clear()
 
